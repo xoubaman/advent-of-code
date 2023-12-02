@@ -5,9 +5,12 @@ use PHPUnit\Framework\TestCase;
 
 class Two extends TestCase
 {
+    const true  USE_REAL_INPUT    = true;
+    const false USE_EXAMPLE_INPUT = false;
+
     public function testFirstPart(): void
     {
-        $input = $this->getInput(true);
+        $input = $this->getInput(self::USE_REAL_INPUT);
         $grouped = $this->groupInput($input);
 
         $cubes = [
@@ -21,10 +24,19 @@ class Two extends TestCase
         self::assertEquals(2348, $result);
     }
 
+    public function testSecondPart(): void
+    {
+        $input   = $this->getInput(self::USE_REAL_INPUT);
+        $grouped = $this->groupInput($input);
+
+        $result = $this->calculateSecondPart($grouped);
+
+        self::assertEquals(76008, $result);
+    }
+
     /**
      * @param array<string,int> $cubes
      * @param array<Game> $grouped
-     * @return int
      */
     public function calculateFirstPart(array $cubes, array $grouped): int
     {
@@ -36,6 +48,19 @@ class Two extends TestCase
         }
 
         return $result;
+    }
+
+    /**
+     * @param array<Game> $grouped
+     */
+    public function calculateSecondPart(array $grouped): int
+    {
+        $totalPower = 0;
+        foreach ($grouped as $game) {
+            $totalPower += $game->power();
+        }
+
+        return $totalPower;
     }
 
     public function groupInput(string $input): array

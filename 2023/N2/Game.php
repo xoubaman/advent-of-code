@@ -43,4 +43,24 @@ readonly class Game
 
         return true;
     }
+
+    public function power(): int
+    {
+        $minimumSet = [
+            'red'   => 0,
+            'blue'  => 0,
+            'green' => 0,
+        ];
+
+        foreach ($this->sets as $set) {
+            $color    = $set['color'];
+            $quantity = $set['quantity'];
+
+            if ($minimumSet[$color] < $quantity) {
+                $minimumSet[$color] = $quantity;
+            }
+        }
+
+        return array_product($minimumSet);
+    }
 }
