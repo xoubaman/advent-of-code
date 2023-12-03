@@ -65,13 +65,13 @@ class Grid
     }
 
     /** @return array<Point> */
-    public function findAllSymbols(): array
+    public function allSymbols(): array
     {
         return array_filter($this->points, static fn(Point $p) => $p->isSymbol());
     }
 
-    /** @return array<RangeOfNumericPoints> */
-    public function findAllNumbers(): array
+    /** @return RangeOfNumericPoints[] */
+    public function allNumbers(): array
     {
         $numbers       = [];
         $checkedPoints = [];
@@ -97,10 +97,18 @@ class Grid
 
     public function calculateSum(): int
     {
-        $allSymbolPoints = array_filter($this->points, static fn(Point $p) => $p->isSymbol());
-
-        foreach ($allSymbolPoints as $point) {
+        $sum = 0;
+        foreach ($this->allNumbers() as $number) {
+            foreach ($number->adjacentCoordinates() as $adjacent) {
+                $point = $this->pointInCoordinate($adjacent);
+                if ($point && $point->isSymbol()) {
+                    $sum += $number->value();
+                    break;
+                }
+            }
         }
+
+        return $sum;
     }
 
     /** @return Point[] */

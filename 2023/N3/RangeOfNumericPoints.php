@@ -21,4 +21,17 @@ class RangeOfNumericPoints
             ''
         );
     }
+
+    /** @return Coordinate[] */
+    public function adjacentCoordinates(): array
+    {
+        $adjacent = [];
+        foreach ($this->points as $point) {
+            foreach ($point->getAdjacentCoordinates() as $coordinate) {
+                $adjacent[$coordinate->asString()] = $coordinate;
+            }
+        }
+
+        return $adjacent;
+    }
 }

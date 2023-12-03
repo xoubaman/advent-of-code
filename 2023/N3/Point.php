@@ -32,7 +32,10 @@ readonly class Point
 
     public function isSymbol(): bool
     {
-        return !in_array($this->value, self::NUMBERS + [self::EMPTY_SPACE], true);
+        $symbols   = self::NUMBERS;
+        $symbols[] = self::EMPTY_SPACE;
+
+        return !in_array($this->value, $symbols, true);
     }
 
     public function hasNumberValue(): bool
@@ -40,7 +43,7 @@ readonly class Point
         return in_array($this->value, self::NUMBERS, true);
     }
 
-    /** @return array<Coordinate> */
+    /** @return Coordinate[] */
     public function getAdjacentCoordinates(): array
     {
         $x = $this->coordinate->x;

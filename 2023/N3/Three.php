@@ -89,7 +89,7 @@ class Three extends TestCase
 
         $grid = Grid::fromArray($input);
 
-        $allSymbols = $grid->findAllSymbols();
+        $allSymbols = $grid->allSymbols();
 
         $expected = [
             new Point(new Coordinate(2, 0), '*'),
@@ -112,7 +112,7 @@ class Three extends TestCase
 
         $grid = Grid::fromArray($input);
 
-        $allSymbols = $grid->findAllNumbers();
+        $allSymbols = $grid->allNumbers();
 
         $expected = [
             new RangeOfNumericPoints(
@@ -138,7 +138,7 @@ class Three extends TestCase
     private function getInput(bool $realInput): string
     {
         if (!$realInput) {
-            file_get_contents('input-test.txt');
+            return file_get_contents('input-test.txt');
         }
 
         return file_get_contents('input.txt');
