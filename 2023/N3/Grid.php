@@ -12,7 +12,9 @@ class Grid
      */
     public function __construct(Point ...$points)
     {
-        $this->points = $points;
+        foreach ($points as $point) {
+            $this->points[$point->coordinateAsString()] = $point;
+        }
     }
 
     public static function fromArray(array $input): self
@@ -30,5 +32,35 @@ class Grid
         }
 
         return new self(...$points);
+    }
+
+    /** @return array<Point> */
+    public function adjacentOfTextCoordinate(string $textCoordinate): array
+    {
+        return $this->adjacentOf(Coordinate::fromText($textCoordinate));
+    }
+
+    /** @return array<Point> */
+    public function adjacentOf(Coordinate $coordinate): array
+    {
+        $point = $this->findPointInCoordinate($coordinate);
+
+        if (!$point) {
+            return [];
+        }
+
+        $adjacentCoordinates = $point->getAdjacentCoordinates();
+
+        return array_filter(
+            array_map(
+                fn(Coordinate $coordinate) => $this->findPointInCoordinate($coordinate),
+                $adjacentCoordinates
+            )
+        );
+    }
+
+    private function findPointInCoordinate(Coordinate $coordinate): null|Point
+    {
+        return $this->points[$coordinate->asString()] ?? null;
     }
 }

@@ -39,6 +39,46 @@ class Three extends TestCase
         self::assertEquals($expected, $grid);
     }
 
+    public function testFindAdjacentCoordinatesOfAPoint(): void
+    {
+        $input = [
+            '46*',
+            '..a',
+            'ze#',
+        ];
+
+        $grid = Grid::fromArray($input);
+
+        $adjacent1 = $grid->adjacentOfTextCoordinate('0.0');
+
+        self::assertEquals(
+            [
+                new Point(new Coordinate(1, 0), '6'),
+                new Point(new Coordinate(0, 1), '.'),
+                new Point(new Coordinate(1, 1), '.'),
+            ],
+            array_values($adjacent1)
+        );
+
+        $adjacent2 = $grid->adjacentOfTextCoordinate('1.1');
+
+        self::assertEquals(
+            [
+                new Point(new Coordinate(0, 0), '4'),
+                new Point(new Coordinate(1, 0), '6'),
+                new Point(new Coordinate(2, 0), '*'),
+
+                new Point(new Coordinate(0, 1), '.'),
+                new Point(new Coordinate(2, 1), 'a'),
+
+                new Point(new Coordinate(0, 2), 'z'),
+                new Point(new Coordinate(1, 2), 'e'),
+                new Point(new Coordinate(2, 2), '#'),
+            ],
+            array_values($adjacent2)
+        );
+    }
+
     private function getInput(bool $realInput): string
     {
         if (!$realInput) {
