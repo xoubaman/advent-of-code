@@ -4,7 +4,7 @@ namespace Advent\N3;
 
 class Grid
 {
-    /** @var array<Point> */
+    /** @var Point[] */
     private array $points;
 
     /**
@@ -43,7 +43,7 @@ class Grid
     /** @return array<Point> */
     public function adjacentOf(Coordinate $coordinate): array
     {
-        $point = $this->findPointInCoordinate($coordinate);
+        $point = $this->pointInCoordinate($coordinate);
 
         if (!$point) {
             return [];
@@ -53,14 +53,13 @@ class Grid
 
         return array_filter(
             array_map(
-                fn(Coordinate $coordinate) => $this->findPointInCoordinate($coordinate),
+                fn(Coordinate $coordinate) => $this->pointInCoordinate($coordinate),
                 $adjacentCoordinates
             )
         );
     }
 
-
-    private function findPointInCoordinate(Coordinate $coordinate): null|Point
+    private function pointInCoordinate(Coordinate $coordinate): null|Point
     {
         return $this->points[$coordinate->asString()] ?? null;
     }
@@ -71,11 +70,53 @@ class Grid
         return array_filter($this->points, static fn(Point $p) => $p->isSymbol());
     }
 
+    /** @return array<RangeOfNumericPoints> */
+    public function findAllNumbers(): array
+    {
+        $numbers       = [];
+        $checkedPoints = [];
+
+        foreach ($this->points as $point) {
+            if (in_array($point->coordinateAsString(), $checkedPoints, true)) {
+                continue;
+            }
+
+            if (!$point->hasNumberValue()) {
+                continue;
+            }
+
+            $numberPoints = $this->numberPointsStartingAt($point);
+
+            $checkedPoints = array_merge($checkedPoints, array_keys($numberPoints));
+
+            $numbers[] = new RangeOfNumericPoints(...$numberPoints);
+        }
+
+        return $numbers;
+    }
+
     public function calculateSum(): int
     {
         $allSymbolPoints = array_filter($this->points, static fn(Point $p) => $p->isSymbol());
 
         foreach ($allSymbolPoints as $point) {
         }
+    }
+
+    /** @return Point[] */
+    private function numberPointsStartingAt(Point $point): array
+    {
+        if (!$point->hasNumberValue()) {
+            return [];
+        }
+
+        $points = [];
+
+        do {
+            $points[$point->coordinateAsString()] = $point;
+            $point                                = $this->pointInCoordinate($point->coordinateToTheRight());
+        } while ($point !== null && $point->hasNumberValue());
+
+        return $points;
     }
 }

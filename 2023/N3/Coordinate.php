@@ -32,4 +32,9 @@ readonly class Coordinate
     {
         return sprintf('%s.%s', $this->x, $this->y);
     }
+
+    public function nextToRight(): self
+    {
+        return new self($this->x + 1, $this->y);
+    }
 }

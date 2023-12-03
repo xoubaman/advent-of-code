@@ -4,7 +4,7 @@ namespace Advent\N3;
 
 readonly class Point
 {
-    private const array NON_SYMBOL_VALUES = [
+    private const array NUMBERS = [
         '0',
         '1',
         '2',
@@ -15,8 +15,9 @@ readonly class Point
         '7',
         '8',
         '9',
-        '.',
     ];
+
+    private const string EMPTY_SPACE = '.';
 
     public function __construct(
         public Coordinate $coordinate,
@@ -27,6 +28,16 @@ readonly class Point
     public function coordinateAsString(): string
     {
         return $this->coordinate->asString();
+    }
+
+    public function isSymbol(): bool
+    {
+        return !in_array($this->value, self::NUMBERS + [self::EMPTY_SPACE], true);
+    }
+
+    public function hasNumberValue(): bool
+    {
+        return in_array($this->value, self::NUMBERS, true);
     }
 
     /** @return array<Coordinate> */
@@ -49,8 +60,8 @@ readonly class Point
         return array_map(static fn(array $v) => new Coordinate($v[0], $v[1]), $values);
     }
 
-    public function isSymbol(): bool
+    public function coordinateToTheRight(): Coordinate
     {
-        return !in_array($this->value, self::NON_SYMBOL_VALUES);
+        return $this->coordinate->nextToRight();
     }
 }

@@ -102,6 +102,39 @@ class Three extends TestCase
         self::assertEquals($expected, array_values($allSymbols));
     }
 
+    public function testFindAllNumbersInGrid(): void
+    {
+        $input = [
+            '4*12',
+            '..a8',
+            'r055',
+        ];
+
+        $grid = Grid::fromArray($input);
+
+        $allSymbols = $grid->findAllNumbers();
+
+        $expected = [
+            new RangeOfNumericPoints(
+                new Point(new Coordinate(0, 0), '4'),
+            ),
+            new RangeOfNumericPoints(
+                new Point(new Coordinate(2, 0), '1'),
+                new Point(new Coordinate(3, 0), '2'),
+            ),
+            new RangeOfNumericPoints(
+                new Point(new Coordinate(3, 1), '8'),
+            ),
+            new RangeOfNumericPoints(
+                new Point(new Coordinate(1, 2), '0'),
+                new Point(new Coordinate(2, 2), '5'),
+                new Point(new Coordinate(3, 2), '5'),
+            ),
+        ];
+
+        self::assertEquals($expected, array_values($allSymbols));
+    }
+
     private function getInput(bool $realInput): string
     {
         if (!$realInput) {
