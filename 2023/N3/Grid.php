@@ -59,8 +59,23 @@ class Grid
         );
     }
 
+
     private function findPointInCoordinate(Coordinate $coordinate): null|Point
     {
         return $this->points[$coordinate->asString()] ?? null;
+    }
+
+    /** @return array<Point> */
+    public function findAllSymbols(): array
+    {
+        return array_filter($this->points, static fn(Point $p) => $p->isSymbol());
+    }
+
+    public function calculateSum(): int
+    {
+        $allSymbolPoints = array_filter($this->points, static fn(Point $p) => $p->isSymbol());
+
+        foreach ($allSymbolPoints as $point) {
+        }
     }
 }

@@ -79,6 +79,29 @@ class Three extends TestCase
         );
     }
 
+    public function testFindAllSymbolsInGrid(): void
+    {
+        $input = [
+            '46*',
+            '..a',
+            'ze#',
+        ];
+
+        $grid = Grid::fromArray($input);
+
+        $allSymbols = $grid->findAllSymbols();
+
+        $expected = [
+            new Point(new Coordinate(2, 0), '*'),
+            new Point(new Coordinate(2, 1), 'a'),
+            new Point(new Coordinate(0, 2), 'z'),
+            new Point(new Coordinate(1, 2), 'e'),
+            new Point(new Coordinate(2, 2), '#'),
+        ];
+
+        self::assertEquals($expected, array_values($allSymbols));
+    }
+
     private function getInput(bool $realInput): string
     {
         if (!$realInput) {
