@@ -2,19 +2,25 @@
 
 namespace Advent\N3;
 
-class Grid
+readonly class Grid
 {
+    private int $maxX;
+    private int $maxY;
     /** @var Point[] */
     private array $points;
 
     /**
      * @param array<Point> $points
      */
-    public function __construct(Point ...$points)
+    public function __construct(int $maxX, int $maxY, Point ...$points)
     {
+        $indexedPoints = [];
         foreach ($points as $point) {
-            $this->points[$point->coordinateAsString()] = $point;
+            $indexedPoints[$point->coordinateAsString()] = $point;
         }
+        $this->maxX   = $maxX;
+        $this->maxY   = $maxY;
+        $this->points = $indexedPoints;
     }
 
     public static function fromArray(array $input): self
@@ -24,20 +30,26 @@ class Grid
         foreach ($input as $line) {
             $x = 0;
             foreach (str_split($line) as $value) {
-                $points[] = new Point(new Coordinate($x, $y), $value);
+                $point = new Point(new Coordinate($x, $y), $value);
                 $x++;
+                if ($point->isEmpty()) {
+                    continue;
+                }
+                $points[] = $point;
             }
 
             $y++;
         }
 
-        return new self(...$points);
+        return new self(strlen($line) - 1, $y - 1, ...$points);
     }
 
-    /** @return array<Point> */
-    public function adjacentOfTextCoordinate(string $textCoordinate): array
+    public function isOutbounds(Point $point): bool
     {
-        return $this->adjacentOf(Coordinate::fromText($textCoordinate));
+        return $point->coordinate->x < 0
+            || $point->coordinate->x > $this->maxX
+            || $point->coordinate->y < 0
+            || $point->coordinate->y > $this->maxY;
     }
 
     /** @return array<Point> */
@@ -45,23 +57,22 @@ class Grid
     {
         $point = $this->pointInCoordinate($coordinate);
 
-        if (!$point) {
-            return [];
-        }
+        $adjacentCoordinates = $point->adjacentCoordinates();
 
-        $adjacentCoordinates = $point->getAdjacentCoordinates();
+        $points = array_map(
+            fn(Coordinate $coordinate) => $this->pointInCoordinate($coordinate),
+            $adjacentCoordinates
+        );
 
         return array_filter(
-            array_map(
-                fn(Coordinate $coordinate) => $this->pointInCoordinate($coordinate),
-                $adjacentCoordinates
-            )
+            $points,
+            fn(Point $p) => !$this->isOutbounds($p)
         );
     }
 
-    private function pointInCoordinate(Coordinate $coordinate): null|Point
+    private function pointInCoordinate(Coordinate $coordinate): Point
     {
-        return $this->points[$coordinate->asString()] ?? null;
+        return $this->points[$coordinate->asString()] ?? Point::emptyOn($coordinate);
     }
 
     /** @return array<Point> */
@@ -101,7 +112,7 @@ class Grid
         foreach ($this->allNumbers() as $number) {
             foreach ($number->adjacentCoordinates() as $adjacent) {
                 $point = $this->pointInCoordinate($adjacent);
-                if ($point && $point->isSymbol()) {
+                if ($point->isSymbol()) {
                     $sum += $number->value();
                     break;
                 }
@@ -109,6 +120,11 @@ class Grid
         }
 
         return $sum;
+    }
+
+    public function calculateGearRatio(): int
+    {
+//        $gears = $this->allSymbols();
     }
 
     /** @return Point[] */
@@ -122,8 +138,8 @@ class Grid
 
         do {
             $points[$point->coordinateAsString()] = $point;
-            $point                                = $this->pointInCoordinate($point->coordinateToTheRight());
-        } while ($point !== null && $point->hasNumberValue());
+            $point = $this->pointInCoordinate($point->nextCoordinateToRight());
+        } while ($point->hasNumberValue());
 
         return $points;
     }

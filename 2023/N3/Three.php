@@ -34,23 +34,26 @@ class Three extends TestCase
     public function testGridFromArray(): void
     {
         $input = [
-            '46',
-            '..',
+            '46.',
+            '.a.',
+            '..f',
         ];
 
         $grid = Grid::fromArray($input);
 
         $expected = new Grid(
-            new Point(new Coordinate(0, 0), '4'),
-            new Point(new Coordinate(1, 0), '6'),
-            new Point(new Coordinate(0, 1), '.'),
-            new Point(new Coordinate(1, 1), '.'),
+            2,
+            2,
+            Point::from(0, 0, '4'),
+            Point::from(1, 0, '6'),
+            Point::from(1, 1, 'a'),
+            Point::from(2, 2, 'f'),
         );
 
         self::assertEquals($expected, $grid);
     }
 
-    public function testFindAdjacentCoordinatesOfAPoint(): void
+    public function testGridBoundaries(): void
     {
         $input = [
             '46*',
@@ -60,31 +63,53 @@ class Three extends TestCase
 
         $grid = Grid::fromArray($input);
 
-        $adjacent1 = $grid->adjacentOfTextCoordinate('0.0');
+        self::assertTrue($grid->isOutbounds(Point::from(-1, 0, '.')));
+        self::assertTrue($grid->isOutbounds(Point::from(3, 0, '.')));
+        self::assertTrue($grid->isOutbounds(Point::from(0, -1, '.')));
+        self::assertTrue($grid->isOutbounds(Point::from(0, 31, '.')));
+
+        self::assertfalse($grid->isOutbounds(Point::from(0, 0, '.')));
+        self::assertfalse($grid->isOutbounds(Point::from(2, 0, '.')));
+        self::assertfalse($grid->isOutbounds(Point::from(2, 2, '.')));
+        self::assertfalse($grid->isOutbounds(Point::from(0, 2, '.')));
+        self::assertfalse($grid->isOutbounds(Point::from(1, 1, '.')));
+    }
+
+    public function testFindAdjacentOfAPoint(): void
+    {
+        $input = [
+            '46*',
+            '..a',
+            'ze#',
+        ];
+
+        $grid = Grid::fromArray($input);
+
+        $adjacent1 = $grid->adjacentOf(Coordinate::fromText('0.0'));
 
         self::assertEquals(
             [
-                new Point(new Coordinate(1, 0), '6'),
-                new Point(new Coordinate(0, 1), '.'),
-                new Point(new Coordinate(1, 1), '.'),
+                Point::from(1, 0, '6'),
+                Point::from(0, 1, '.'),
+                Point::from(1, 1, '.'),
             ],
             array_values($adjacent1)
         );
 
-        $adjacent2 = $grid->adjacentOfTextCoordinate('1.1');
+        $adjacent2 = $grid->adjacentOf(Coordinate::fromText('1.1'));
 
         self::assertEquals(
             [
-                new Point(new Coordinate(0, 0), '4'),
-                new Point(new Coordinate(1, 0), '6'),
-                new Point(new Coordinate(2, 0), '*'),
+                Point::from(0, 0, '4'),
+                Point::from(1, 0, '6'),
+                Point::from(2, 0, '*'),
 
-                new Point(new Coordinate(0, 1), '.'),
-                new Point(new Coordinate(2, 1), 'a'),
+                Point::from(0, 1, '.'),
+                Point::from(2, 1, 'a'),
 
-                new Point(new Coordinate(0, 2), 'z'),
-                new Point(new Coordinate(1, 2), 'e'),
-                new Point(new Coordinate(2, 2), '#'),
+                Point::from(0, 2, 'z'),
+                Point::from(1, 2, 'e'),
+                Point::from(2, 2, '#'),
             ],
             array_values($adjacent2)
         );
@@ -103,11 +128,11 @@ class Three extends TestCase
         $allSymbols = $grid->allSymbols();
 
         $expected = [
-            new Point(new Coordinate(2, 0), '*'),
-            new Point(new Coordinate(2, 1), 'a'),
-            new Point(new Coordinate(0, 2), 'z'),
-            new Point(new Coordinate(1, 2), 'e'),
-            new Point(new Coordinate(2, 2), '#'),
+            Point::from(2, 0, '*'),
+            Point::from(2, 1, 'a'),
+            Point::from(0, 2, 'z'),
+            Point::from(1, 2, 'e'),
+            Point::from(2, 2, '#'),
         ];
 
         self::assertEquals($expected, array_values($allSymbols));
@@ -127,19 +152,19 @@ class Three extends TestCase
 
         $expected = [
             new RangeOfNumericPoints(
-                new Point(new Coordinate(0, 0), '4'),
+                Point::from(0, 0, '4'),
             ),
             new RangeOfNumericPoints(
-                new Point(new Coordinate(2, 0), '1'),
-                new Point(new Coordinate(3, 0), '2'),
+                Point::from(2, 0, '1'),
+                Point::from(3, 0, '2'),
             ),
             new RangeOfNumericPoints(
-                new Point(new Coordinate(3, 1), '8'),
+                Point::from(3, 1, '8'),
             ),
             new RangeOfNumericPoints(
-                new Point(new Coordinate(1, 2), '0'),
-                new Point(new Coordinate(2, 2), '5'),
-                new Point(new Coordinate(3, 2), '5'),
+                Point::from(1, 2, '0'),
+                Point::from(2, 2, '5'),
+                Point::from(3, 2, '5'),
             ),
         ];
 

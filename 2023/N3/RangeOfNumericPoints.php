@@ -27,7 +27,7 @@ class RangeOfNumericPoints
     {
         $adjacent = [];
         foreach ($this->points as $point) {
-            foreach ($point->getAdjacentCoordinates() as $coordinate) {
+            foreach ($point->adjacentCoordinates() as $coordinate) {
                 $adjacent[$coordinate->asString()] = $coordinate;
             }
         }
