@@ -11,13 +11,24 @@ class Three extends TestCase
 
     public function testFirstPart(): void
     {
-        $input = explode("\n", $this->getInput(self::USE_EXAMPLE_INPUT));
+        $input = explode("\n", $this->getInput(self::USE_REAL_INPUT));
 
         $grid = Grid::fromArray($input);
 
         $result = $grid->calculateSum();
 
-        self::assertEquals(4361, $result);
+        self::assertEquals(535078, $result);
+    }
+
+    public function testSecondPart(): void
+    {
+        $input = explode("\n", $this->getInput(self::USE_EXAMPLE_INPUT));
+
+        $grid = Grid::fromArray($input);
+
+        $result = $grid->calculateGearRatio();
+
+        self::assertEquals(467835, $result);
     }
 
     public function testGridFromArray(): void
