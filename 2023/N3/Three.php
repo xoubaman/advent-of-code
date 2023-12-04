@@ -22,7 +22,7 @@ class Three extends TestCase
 
     public function testSecondPart(): void
     {
-        $input = explode("\n", $this->getInput(self::USE_EXAMPLE_INPUT));
+        $input = explode("\n", $this->getInput(self::USE_REAL_INPUT));
 
         $grid = Grid::fromArray($input);
 

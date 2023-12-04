@@ -82,4 +82,30 @@ readonly class Point
     {
         return $this->value === self::EMPTY_VALUE;
     }
+
+    public function previousRow(): int
+    {
+        return $this->coordinate->y - 1;
+    }
+
+    public function row(): int
+    {
+        return $this->coordinate->y;
+    }
+
+    public function nextRow(): int
+    {
+        return $this->coordinate->y + 1;
+    }
+
+    public function isAdjacentOf(Point $point): bool
+    {
+        foreach ($this->adjacentCoordinates() as $adjacent) {
+            if ($adjacent->asString() === $point->coordinateAsString()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

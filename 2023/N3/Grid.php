@@ -25,6 +25,9 @@ readonly class Grid
 
     public static function fromArray(array $input): self
     {
+        if (empty($input)) {
+            throw new \RuntimeException('Empty grid? really?');
+        }
         $points = [];
         $y      = 0;
         foreach ($input as $line) {
@@ -41,7 +44,7 @@ readonly class Grid
             $y++;
         }
 
-        return new self(strlen($line) - 1, $y - 1, ...$points);
+        return new self(strlen($input[0]) - 1, count($input) - 1, ...$points);
     }
 
     public function isOutbounds(Point $point): bool
@@ -78,16 +81,23 @@ readonly class Grid
     /** @return array<Point> */
     public function allSymbols(): array
     {
-        return array_filter($this->points, static fn(Point $p) => $p->isSymbol());
+        return $this->filterPoints(static fn(Point $p) => $p->isSymbol());
+    }
+
+    /** @return array<Point> */
+    public function allSymbolsWithValue(string $value): array
+    {
+        return $this->filterPoints(static fn(Point $p) => $p->value === $value);
     }
 
     /** @return RangeOfNumericPoints[] */
-    public function allNumbers(): array
+    public function allNumbers(?array $points = null): array
     {
+        $points = $points ?? $this->points;
         $numbers       = [];
         $checkedPoints = [];
 
-        foreach ($this->points as $point) {
+        foreach ($points as $point) {
             if (in_array($point->coordinateAsString(), $checkedPoints, true)) {
                 continue;
             }
@@ -109,7 +119,7 @@ readonly class Grid
     public function calculateSum(): int
     {
         $sum = 0;
-        foreach ($this->allNumbers() as $number) {
+        foreach ($this->allNumbers($this->points) as $number) {
             foreach ($number->adjacentCoordinates() as $adjacent) {
                 $point = $this->pointInCoordinate($adjacent);
                 if ($point->isSymbol()) {
@@ -124,7 +134,29 @@ readonly class Grid
 
     public function calculateGearRatio(): int
     {
-//        $gears = $this->allSymbols();
+        $gearRatio = 0;
+        $gears     = $this->allSymbolsWithValue('*');
+
+        foreach ($gears as $gear) {
+            $numbersInAdjacentRows = array_merge(
+                $this->allNumbers($this->row($gear->previousRow())),
+                $this->allNumbers($this->row($gear->row())),
+                $this->allNumbers($this->row($gear->nextRow())),
+            );
+
+            $gearNumbers = [];
+            foreach ($numbersInAdjacentRows as $number) {
+                if ($number->isAdjacentOf($gear)) {
+                    $gearNumbers[] = $number;
+                }
+            }
+
+            if (count($gearNumbers) === 2) {
+                $gearRatio += $gearNumbers[0]->value() * $gearNumbers[1]->value();
+            }
+        }
+
+        return $gearRatio;
     }
 
     /** @return Point[] */
@@ -142,5 +174,23 @@ readonly class Grid
         } while ($point->hasNumberValue());
 
         return $points;
+    }
+
+    /**
+     * @param null|Point[] $points
+     * @return Point[]
+     */
+    private function filterPoints(callable $filter, ?array $points = null): array
+    {
+        return array_filter($points ?? $this->points, $filter);
+    }
+
+    /** @return Point[] */
+    private function row(int $row): array
+    {
+        return array_filter(
+            $this->points,
+            static fn(Point $p) => $p->row() === $row
+        );
     }
 }

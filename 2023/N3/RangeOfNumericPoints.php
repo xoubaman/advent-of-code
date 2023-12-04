@@ -34,4 +34,15 @@ class RangeOfNumericPoints
 
         return $adjacent;
     }
+
+    public function isAdjacentOf(Point $point): bool
+    {
+        foreach ($this->adjacentCoordinates() as $adjacent) {
+            if ($adjacent->asString() === $point->coordinateAsString()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
